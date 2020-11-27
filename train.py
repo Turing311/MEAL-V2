@@ -215,9 +215,9 @@ def main(argv):
     logging.info("Arguments parsed.\n{}".format(pprint.pformat(vars(args))))
 
     # Create the train and the validation data loaders.
-    train_loader = torch.utils.data.DataLoader(DataLmdb("F:\\Database\\DHLPC_lmdb\\Train_DHLPC(neg)_20201026_2510_1464004_lmdb", db_size=1464004, crop_size=128, flip=True, scale=0.00390625),
+    train_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Low_Test/Train-Low_lmdb", db_size=1464004, crop_size=128, flip=True, scale=0.00390625),
         batch_size=64, shuffle=True)
-    val_loader = torch.utils.data.DataLoader(DataLmdb("F:\\Database\\DHLPC_lmdb\\Vald_DHLPC(neg)_20201026_2510_6831_lmdb", db_size=6831, crop_size=128, flip=False, scale=0.00390625, random=False),
+    val_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Low_Test/Valid-Low_lmdb", db_size=6831, crop_size=128, flip=False, scale=0.00390625, random=False),
         batch_size=64, shuffle=False)
 
     # Create model with optional teachers.
