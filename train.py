@@ -199,7 +199,7 @@ def create_optimizer(model,  discriminator_parameters, momentum=0.9, weight_deca
     return optimizer
 
 def create_discriminator_criterion(args):
-    d = discriminator.Discriminator(outputs_size=800, K=8).cuda()
+    d = discriminator.Discriminator(outputs_size=797, K=8).cuda()
     d = torch.nn.DataParallel(d)
     update_parameters = {'params': d.parameters(), "lr": args.d_lr}
     discriminators_criterion = discriminatorLoss(d).cuda()
