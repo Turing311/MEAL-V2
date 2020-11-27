@@ -216,9 +216,9 @@ def main(argv):
 
     # Create the train and the validation data loaders.
     train_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Low_Test/Train-Low_lmdb", db_size=1464004, crop_size=128, flip=True, scale=0.00390625),
-        batch_size=64, shuffle=True)
+        batch_size=256, shuffle=True)
     val_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Low_Test/Valid-Low_lmdb", db_size=6831, crop_size=128, flip=False, scale=0.00390625, random=False),
-        batch_size=64, shuffle=False)
+        batch_size=256, shuffle=False)
 
     # Create model with optional teachers.
     model, loss = model_factory.create_model(
