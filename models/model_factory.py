@@ -8,7 +8,7 @@ import random
 from extensions import data_parallel
 from extensions import teacher_wrapper
 from extensions import kd_loss
-from models import resnet50
+from models import resnet50, mfn, mfn_mini
 import torchvision.models as models
 # import pretrainedmodels
 import timm
@@ -33,6 +33,7 @@ def _create_checkpoint_model(model_name, state_file=None):
     return model
 
 def _create_model(model_name, teacher=False, pretrain=True):
+    '''
     if pretrain:
         print("=> teacher" if teacher else "=> student", end=":")
         print(" using pre-trained model '{}'".format(model_name))
@@ -48,7 +49,13 @@ def _create_model(model_name, teacher=False, pretrain=True):
         model.features = torch.nn.DataParallel(model.features)
         model.cuda()
     else:
-        model = torch.nn.DataParallel(model).cuda()
+        model = torch.nn.DataParallel(model).cuda()'''
+    
+    if model_name == 'mfn_mini':
+        model = mfn_mini.MfnModelMini().cuda()
+    elif model_name == 'mfn':
+        model = mfn.MfnModel().cuda()
+        model.load_state_dict( torch.load('models/mfn_800.pth'), strict=False )
 
     if teacher:
         for p in model.parameters():

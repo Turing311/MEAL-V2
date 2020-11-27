@@ -20,6 +20,7 @@ import opts
 import test
 import utils
 
+from datalmdb import DataLmdb
 
 def parse_args(argv):
     """Parse arguments @argv and return the flags needed for training."""
@@ -198,7 +199,7 @@ def create_optimizer(model,  discriminator_parameters, momentum=0.9, weight_deca
     return optimizer
 
 def create_discriminator_criterion(args):
-    d = discriminator.Discriminator(outputs_size=1000, K=8).cuda()
+    d = discriminator.Discriminator(outputs_size=800, K=8).cuda()
     d = torch.nn.DataParallel(d)
     update_parameters = {'params': d.parameters(), "lr": args.d_lr}
     discriminators_criterion = discriminatorLoss(d).cuda()
@@ -214,15 +215,16 @@ def main(argv):
     logging.info("Arguments parsed.\n{}".format(pprint.pformat(vars(args))))
 
     # Create the train and the validation data loaders.
-    train_loader = imagenet.get_train_loader(args.imagenet, args.batch_size,
-                                             args.num_workers, args.image_size)
-    val_loader = imagenet.get_val_loader(args.imagenet, args.batch_size,
-                                         args.num_workers, args.image_size)
+    train_loader = torch.utils.data.DataLoader(DataLmdb("F:\\Database\\DHLPC_lmdb\\Train_DHLPC(neg)_20201026_2510_1464004_lmdb", db_size=1464004, crop_size=128, flip=True, scale=0.00390625),
+        batch_size=64, shuffle=True)
+    val_loader = torch.utils.data.DataLoader(DataLmdb("F:\\Database\\DHLPC_lmdb\\Vald_DHLPC(neg)_20201026_2510_6831_lmdb", db_size=6831, crop_size=128, flip=False, scale=0.00390625, random=False),
+        batch_size=64, shuffle=False)
+
     # Create model with optional teachers.
     model, loss = model_factory.create_model(
         args.model, args.student_state_file, args.gpus, args.teacher_model,
         args.teacher_state_file)
-    logging.info("Model:\n{}".format(model))
+#    logging.info("Model:\n{}".format(model))
 
     discriminator_loss, update_parameters = create_discriminator_criterion(args)
 

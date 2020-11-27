@@ -116,7 +116,7 @@ def main(argv):
     # Create model and the loss.
     model, loss = model_factory.create_model(
         args.model, args.student_state_file, args.gpus)
-    logging.info("Model:\n{}".format(model))
+#    logging.info("Model:\n{}".format(model))
 
     # Test for one epoch.
     test_for_one_epoch(model, loss, val_loader, epoch_number=1)

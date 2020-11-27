@@ -15,9 +15,9 @@ def add_general_flags(parser):
 
 
 def add_dataset_flags(parser):
-    parser.add_argument('--imagenet', required=True, help="Path to ImageNet's "
-                        "root directory holding 'train/' and 'val/' "
-                        "directories.")
+#    parser.add_argument('--imagenet', required=True, help="Path to ImageNet's "
+#                        "root directory holding 'train/' and 'val/' "
+#                        "directories.")
     parser.add_argument('--batch-size', default=256, help="Batch size to use "
                         "distributed over all GPUs.", type=int)
     parser.add_argument('--num-workers', '-j', default=40, help="Number of "
