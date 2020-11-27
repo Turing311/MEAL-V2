@@ -236,6 +236,9 @@ def main(argv):
     # Train and test for needed number of epochs.
     optimizer = create_optimizer(model, update_parameters, args.momentum, args.weight_decay)
 
+    optimizer.load_state_dict('models/optim_state_03.pytar')
+	model.load_state_dict('models/model_state_03.pytar')
+
     for epoch in range(args.start_epoch, args.epochs):
         lr = regime.get_lr(epoch)
         _set_learning_rate(optimizer, lr)
