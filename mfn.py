@@ -126,7 +126,10 @@ class MfnModel(nn.Module):
         self.conv5_dw_bn = self.__batch_normalization(2, 'conv5_dw/bn', num_features=512, eps=9.999999747378752e-06, momentum=0.0)
         self.fc1_512_1 = self.__dense(name = 'fc1_512_1', in_features = 512, out_features = 512, bias = False)
         self.bn_fc1_512 = self.__batch_normalization(2, 'bn_fc1_512', num_features=512, eps=9.999999747378752e-06, momentum=0.0)
-        self.fc3_256_1 = self.__dense_fc(name = 'fc3_256_1', in_features = 256, out_features = 800, bias = False)
+        self.classifier = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Linear(256, 797, bias=False),
+        )
 
     def forward(self, x, out_feature=False):
         conv1_pad       = F.pad(x, (1, 1, 1, 1))
@@ -296,7 +299,7 @@ class MfnModel(nn.Module):
         bn_fc1_512      = bn_fc1_512.reshape(bn_fc1_512.size()[0], bn_fc1_512.size()[1])
         slice_fc1, slice_fc2       = bn_fc1_512[:, :256], bn_fc1_512[:, 256:]
         eltwise_fc1 = torch.max(slice_fc1, slice_fc2)
-        out       = self.fc3_256_1(eltwise_fc1)
+        out       = self.classifier(eltwise_fc1)
 
         if out_feature == False:
             return out

@@ -23,7 +23,7 @@ def add_dataset_flags(parser):
     parser.add_argument('--num-workers', '-j', default=40, help="Number of "
                         "data loading processes to use for loading data and "
                         "transforming.", type=int)
-    parser.add_argument('--image-size', default=224, help="image size to train "
+    parser.add_argument('--image-size', default=128, help="image size to train "
                         "input image size.", type=int)
 
 
