@@ -12,6 +12,7 @@ from models import resnet50, mfn, mfn_mini
 import torchvision.models as models
 # import pretrainedmodels
 import timm
+from models.mfn import MfnModel
 
 MODEL_NAME_MAP = {
     'resnet50': resnet50.ResNet50,
