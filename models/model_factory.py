@@ -54,8 +54,8 @@ def _create_model(model_name, teacher=False, pretrain=True):
     if model_name == 'mfn_mini':
         model = mfn_mini.MfnModelMini().cuda()
     elif model_name == 'mfn':
-        model = mfn.MfnModel().cuda()
-        model.load_state_dict( torch.load('models/mfn_800.pth'), strict=False )
+#        model = mfn.MfnModel().cuda()
+        model = torch.load('models/mfn_800.pth').cuda()
 
     if teacher:
         for p in model.parameters():
