@@ -14,11 +14,12 @@ from torch import nn
 from loss import discriminatorLoss
 
 import imagenet
-from models import model_factory
+from models import model_factory, mfn_mini
 from models import discriminator
 import opts
 import test
 import utils
+import torch.nn.functional as F
 
 from datalmdb import DataLmdb
 
@@ -207,7 +208,7 @@ def create_discriminator_criterion(args):
         discriminators_criterion = torch.nn.DataParallel(discriminators_criterion, device_ids=args.gpus)
     return discriminators_criterion, update_parameters
 
-def main(argv):
+def main2(argv):
     """Run the training script with command line arguments @argv."""
     args = parse_args(argv)
     utils.general_setup(args.save, args.gpus)
@@ -245,6 +246,67 @@ def main(argv):
         test.test_for_one_epoch(model, loss, val_loader, epoch)
         save_checkpoint(args.save, model, optimizer, epoch)
 
+
+def train(model, device, train_loader, optimizer, sparse_bn=False):
+    model.train()
+    for batch_idx, (data, target) in enumerate(train_loader):
+        data, target = data.to(device), target.to(device)
+        optimizer.zero_grad()
+        output = model(data)
+        loss = F.cross_entropy(output, target)
+        loss.backward()
+        # L1 regularization on BN layer
+        if sparse_bn:
+            updateBN(model)
+        optimizer.step()
+        if batch_idx % 300 == 299:
+            print('{:2.0f}%  Loss {}'.format(100 * batch_idx / len(train_loader), loss.item()))
+
+
+def test(model, device, test_loader):
+    global best_acc
+    model.eval()
+    test_loss = 0
+    correct = 0
+    with torch.no_grad():
+        for data, target in test_loader:
+            data, target = data.to(device), target.to(device)            
+
+            output = model(data.cuda())
+            test_loss += F.nll_loss(output, target, reduction='sum').item()
+            pred = output.argmax(dim=1, keepdim=True)
+            correct += pred.eq(target.view_as(pred)).sum().item()
+    test_loss /= len(test_loader.dataset)
+    acc = 100 * correct / len(test_loader.dataset)
+
+    if acc > best_acc:
+        best_acc = acc
+        torch.save(model.state_dict(), 'mfn_mini.pth')
+
+    print('Loss: {}  Accuracy: {}%   Best: {}%)\n'.format(
+        test_loss, acc, best_acc))
+    return acc
+
+def main(argv):
+    torch.manual_seed(0)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    train_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Low_Test/Train-Low_lmdb", db_size=1464004, crop_size=128, flip=True, scale=0.00390625),
+        batch_size=256, shuffle=True)
+    val_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Low_Test/Valid-Low_lmdb", db_size=6831, crop_size=128, flip=False, scale=0.00390625, random=False),
+        batch_size=256, shuffle=False)
+
+    epochs = 300
+    best_acc = 0
+    model = mfn_mini.MfnModelMini().cuda()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
+    for epoch in range(epochs):
+        if epoch in [epochs * 0.5, epochs * 0.75]:
+            for param_group in optimizer.param_groups:
+                param_group['lr'] *= 0.1
+        print("epoch {}".format(epoch))
+        train(model, device, train_loader, optimizer, False)
+        test(model, device, test_loader)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
