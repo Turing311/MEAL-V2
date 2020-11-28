@@ -259,9 +259,8 @@ def train(model, device, train_loader, optimizer, sparse_bn=False):
         if sparse_bn:
             updateBN(model)
         optimizer.step()
-        if batch_idx % 300 == 299:
+        if batch_idx % 1000 == 999:
             print('{:2.0f}%  Loss {}'.format(100 * batch_idx / len(train_loader), loss.item()))
-            break
 
 best_acc = 0
 
@@ -298,7 +297,7 @@ def main(argv):
     test_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Low_Test/Valid-Low_lmdb", db_size=6831, crop_size=128, flip=False, scale=0.00390625, random=False),
         batch_size=256, shuffle=False)
 
-    epochs = 300
+    epochs = 100
     model = mfn_mini.MfnModelMini().cuda()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
     for epoch in range(epochs):
