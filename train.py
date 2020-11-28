@@ -261,6 +261,7 @@ def train(model, device, train_loader, optimizer, sparse_bn=False):
         optimizer.step()
         if batch_idx % 300 == 299:
             print('{:2.0f}%  Loss {}'.format(100 * batch_idx / len(train_loader), loss.item()))
+            break
 
 
 def test(model, device, test_loader):
@@ -293,7 +294,7 @@ def main(argv):
 
     train_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Low_Test/Train-Low_lmdb", db_size=1464004, crop_size=128, flip=True, scale=0.00390625),
         batch_size=256, shuffle=True)
-    val_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Low_Test/Valid-Low_lmdb", db_size=6831, crop_size=128, flip=False, scale=0.00390625, random=False),
+    test_loader = torch.utils.data.DataLoader(DataLmdb("/kaggle/working/Low_Test/Valid-Low_lmdb", db_size=6831, crop_size=128, flip=False, scale=0.00390625, random=False),
         batch_size=256, shuffle=False)
 
     epochs = 300
