@@ -263,6 +263,7 @@ def train(model, device, train_loader, optimizer, sparse_bn=False):
             print('{:2.0f}%  Loss {}'.format(100 * batch_idx / len(train_loader), loss.item()))
             break
 
+best_acc = 0
 
 def test(model, device, test_loader):
     global best_acc
@@ -298,7 +299,6 @@ def main(argv):
         batch_size=256, shuffle=False)
 
     epochs = 300
-    best_acc = 0
     model = mfn_mini.MfnModelMini().cuda()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=1e-4)
     for epoch in range(epochs):
